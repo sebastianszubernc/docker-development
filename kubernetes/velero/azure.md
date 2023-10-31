@@ -1,7 +1,7 @@
 # Run Azure CLI
 
 ```
-docker run -it --rm --entrypoint /bin/sh mcr.microsoft.com/azure-cli:2.9.1
+docker run -it --rm --entrypoint /bin/bash mcr.microsoft.com/azure-cli:2.53.1
 ```
 
 # Login to Azure
@@ -13,21 +13,23 @@ az login
 # Create Storage
 
 ```
-AZURE_BACKUP_RESOURCE_GROUP=velero
-AZURE_STORAGE_ACCOUNT_NAME=veleromarcel
-BLOB_CONTAINER=mycluster
-AZURE_BACKUP_SUBSCRIPTION_ID=
+AZURE_BACKUP_RESOURCE_GROUP=seba-velero
+AZURE_STORAGE_ACCOUNT_NAME=sebavelero1027
+BLOB_CONTAINER=velero-control-plane
+AZURE_BACKUP_SUBSCRIPTION_ID=866a781f-d26d-484d-baeb-1a4db562a93a
 
 # set subscription
 az account set --subscription $AZURE_BACKUP_SUBSCRIPTION_ID
 # resource group
-az group create -n $AZURE_BACKUP_RESOURCE_GROUP --location WestUS
+az group create -n $AZURE_BACKUP_RESOURCE_GROUP --location westeurope
 
 # storage account
 az storage account create \
     --name $AZURE_STORAGE_ACCOUNT_NAME \
     --resource-group $AZURE_BACKUP_RESOURCE_GROUP \
-    --sku Standard_GRS
+    --sku Standard_GRS \
+    --allow-blob-public-access false \
+    --https-only true
 
 # get key
 AZURE_STORAGE_ACCOUNT_ACCESS_KEY=`az storage account keys list --account-name $AZURE_STORAGE_ACCOUNT_NAME --query "[?keyName == 'key1'].value" -o tsv`
