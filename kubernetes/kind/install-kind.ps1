@@ -1,3 +1,5 @@
+# alternative installation using Chocolatey
+# choco install kind
 
 # Find latest versions number based on tags on remote repo
 $regex = '([0-9]+.[0-9]+.[0-9]+$)'

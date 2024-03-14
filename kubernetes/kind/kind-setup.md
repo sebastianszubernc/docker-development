@@ -3,12 +3,23 @@ Install or upgrade kind
 ```
 .\kubernetes\kind\install-kind.ps1
 ```
+alternatively use Chocolatey
+```
+choco install kind
+```
+
 
 Create cluster **velero** using kind
 ```
 kind create cluster --name velero --image kindest/node:v1.29.0
 kubectl get nodes
 ```
+from book
+```
+kind create cluster --config ./kubernetes/kind/kind.yaml
+kubectl get nodes
+```
+
 
 Install some services on the **velero** cluster
 ```
@@ -29,7 +40,7 @@ docker pull redhat/ubi9:9.2
 
 Install velero in a container
 ```
-curl -L -o /tmp/velero.tar.gz https://github.com/vmware-tanzu/velero/releases/download/v1.12.1/velero-v1.12.1-linux-amd64.tar.gz 
+curl -L -o /tmp/velero.tar.gz https://github.com/vmware-tanzu/velero/releases/download/v1.12.1/velero-v1.12.1-linux-amd64.tar.gz
 tar -C /tmp -xvf /tmp/velero.tar.gz
 mv /tmp/velero-v1.12.1-linux-amd64/velero /usr/local/bin/velero
 chmod +x /usr/local/bin/velero
@@ -39,4 +50,3 @@ velero --help
 
 Run Azure CLI
 docker run -it --rm --entrypoint /bin/sh docker pull mcr.microsoft.com/azure-cli:2.53.1
-
