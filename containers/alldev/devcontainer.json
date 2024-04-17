@@ -5,5 +5,13 @@
 	"name": "alldev",
 	"image": "alldev:2404",
 	// Comment out the next line to run as root
-	"remoteUser": "vscode"
+	"remoteUser": "vscode",
+	// https://code.visualstudio.com/remote/advancedcontainers/add-local-file-mount
+	"mounts": [
+		// Mounting local kubeconfig into the container
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.kube/config,target=/home/vscode/.kube/config,type=bind,consistency=cached",
+		// add a local volume to store the command history
+		// https://code.visualstudio.com/remote/advancedcontainers/persist-bash-history
+		"source=projectname-bashhistory,target=/commandhistory,type=volume"
+	]
 }
