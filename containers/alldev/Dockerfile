@@ -18,15 +18,28 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
-RUN python3 -m pip install --upgrade pip; \
-    python3 -m pip install "ansible==8.1.0"
+# RUN python3 -m pip install --upgrade pip; \
+#     python3 -m pip install "ansible==8.1.0"
 
-RUN dnf install https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell-7.4.1-1.rh.x86_64.rpm; \
-    pwsh -c "\$ProgressPreference = 'SilentlyContinue'; Install-Module -Name Az -RequiredVersion 10.1.0 -Force"; \
-    rpm --import https://packages.microsoft.com/keys/microsoft.asc; \
+RUN python3 -m pip install --upgrade pip
+
+# RUN dnf install https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell-7.4.1-1.rh.x86_64.rpm; \
+#     pwsh -c "\$ProgressPreference = 'SilentlyContinue'; Install-Module -Name Az -RequiredVersion 10.1.0 -Force"; \
+#     rpm --import https://packages.microsoft.com/keys/microsoft.asc; \
+#     dnf install -y https://packages.microsoft.com/config/rhel/9.0/packages-microsoft-prod.rpm; \
+#     dnf install azure-cli; \
+#     python3 -m pip install ansible[azure];
+
+# Install PowerShell Core
+ARG PS_VERSION=7.4.2
+RUN dnf install https://github.com/PowerShell/PowerShell/releases/download/v$PS_VERSION/powershell-$PS_VERSION-1.rh.x86_64.rpm
+
+# RUN pwsh -c "\$ProgressPreference = 'SilentlyContinue'; Install-Module -Name Az -Force"
+
+# Install Azure CLI
+RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc; \
     dnf install -y https://packages.microsoft.com/config/rhel/9.0/packages-microsoft-prod.rpm; \
-    dnf install azure-cli; \
-    python3 -m pip install ansible[azure];
+    dnf install azure-cli
 
 # Install latest kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
