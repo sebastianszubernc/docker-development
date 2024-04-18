@@ -46,18 +46,6 @@ RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc; \
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
     && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-# Install Krew
-RUN su - $USERNAME && \
-    ( set -x; cd "$(mktemp -d)" && \
-    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/download/v0.4.4/krew-linux_amd64.tar.gz" && \
-    tar zxvf krew-linux_amd64.tar.gz && \
-    KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" && \
-    "$KREW" install krew )
-
-# Add Krew to the PATH
-# ENV PATH="${PATH}:/root/.krew/bin"
-RUN echo "export PATH=""${PATH}:/root/.krew/bin""" >> "/home/$USERNAME/.bashrc"
-
 # Install Helm
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
     chmod +x get_helm.sh && \
@@ -67,7 +55,10 @@ RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master
 RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo \
     && yum -y install terraform
 
+# Set PS1
 RUN echo "export PS1='[\\u@docker \\W]\\$ '" >> "/home/$USERNAME/.bash_profile"
+# Add Krew to the PATH
+RUN echo "export PATH=""\${PATH}:/home/$USERNAME/.krew/bin""" >> "/home/$USERNAME/.bash_profile"
 
 # Persist bash history
 # https://code.visualstudio.com/remote/advancedcontainers/persist-bash-history
@@ -84,3 +75,16 @@ RUN yum install bash-completion \
     && echo "source <(kubectl completion bash)" >> "/home/$USERNAME/.bashrc" \
     && echo "alias k=kubectl" >> "/home/$USERNAME/.bashrc" \
     && echo "complete -o default -F __start_kubectl k" >> "/home/$USERNAME/.bashrc"
+
+
+USER $USERNAME:$USERNAME
+
+# Install Krew
+ARG KREW_VERSION=0.4.4
+RUN set -x; cd "$(mktemp -d)" && \
+    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/download/v$KREW_VERSION/krew-linux_amd64.tar.gz" && \
+    tar zxvf krew-linux_amd64.tar.gz && \
+    KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" && \
+    "$KREW" install krew
+
+RUN export PATH="${PATH}:/home/$USERNAME/.krew/bin" && kubectl krew install ingress-nginx
