@@ -10,7 +10,8 @@ ARG USER_GID=1000
 
 RUN yum check-update; \
     yum install -y gcc libffi-devel python3 python3-pip epel-release; \
-    yum install -y openssh-clients git sudo yum-utils
+    yum install -y openssh-clients git sudo yum-utils; \
+    yum install -y bind-utils
 
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
@@ -44,6 +45,23 @@ RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc; \
 # Install latest kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
     && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Install Krew
+RUN su - $USERNAME && \
+    ( set -x; cd "$(mktemp -d)" && \
+    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/download/v0.4.4/krew-linux_amd64.tar.gz" && \
+    tar zxvf krew-linux_amd64.tar.gz && \
+    KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" && \
+    "$KREW" install krew )
+
+# Add Krew to the PATH
+# ENV PATH="${PATH}:/root/.krew/bin"
+RUN echo "export PATH=""${PATH}:/root/.krew/bin""" >> "/home/$USERNAME/.bashrc"
+
+# Install Helm
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
+    chmod +x get_helm.sh && \
+    ./get_helm.sh
 
 # Install latest terraform
 RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo \
