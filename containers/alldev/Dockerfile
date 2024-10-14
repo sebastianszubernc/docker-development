@@ -2,7 +2,7 @@ FROM oraclelinux:9
 
 #
 # Identify the maintainer of an image
-LABEL maintainer="madperro@gmail.com"
+LABEL maintainer="sebastian.szuber@nordcloud.com"
 
 ARG USERNAME=vscode
 ARG USER_UID=1000
@@ -87,4 +87,4 @@ RUN set -x; cd "$(mktemp -d)" && \
     KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" && \
     "$KREW" install krew
 
-RUN export PATH="${PATH}:/home/$USERNAME/.krew/bin" && kubectl krew install ingress-nginx
+# RUN export PATH="${PATH}:/home/$USERNAME/.krew/bin" && kubectl krew install ingress-nginx

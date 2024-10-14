@@ -1,2 +1,2 @@
 
-docker image build . --tag alldev:2404
+docker image build . --tag alldev:2410
